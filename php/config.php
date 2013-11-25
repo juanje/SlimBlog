@@ -22,10 +22,10 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 $capsule = new Capsule;
 $capsule->addConnection(array(
     'driver' => 'mysql',
-    'host' => 'localhost',
-    'database' => 'slimblog',
-    'username' => 'root',
-    'password' => '',
+    'host' => getEnv("OPENSHIFT_MYSQL_DB_HOST"),
+    'database' => getEnv("OPENSHIFT_APP_NAME"),
+    'username' => getEnv("OPENSHIFT_MYSQL_DB_USERNAME"),
+    'password' => getEnv("OPENSHIFT_MYSQL_DB_PASSWORD"),
     'prefix' => '',
     'charset' => 'utf8',
     'collation' => 'utf8_general_ci',
