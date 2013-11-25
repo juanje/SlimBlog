@@ -1,0 +1,22 @@
+#!/bin/bash
+
+export COMPOSER_HOME="$OPENSHIFT_DATA_DIR/.composer"
+
+if [ ! -f "$OPENSHIFT_DATA_DIR/composer.phar" ]; then
+    curl -s https://getcomposer.org/installer | /usr/bin/php -- --install-dir=$OPENSHIFT_DATA_DIR
+else
+    /usr/bin/php $OPENSHIFT_DATA_DIR/composer.phar self-update
+fi
+
+unset GIT_DIR
+cd $OPENSHIFT_REPO_DIR
+/usr/bin/php $OPENSHIFT_DATA_DIR/composer.phar install
+
+if [ ! -f "$OPENSHIFT_DATA_DIR/database.lock" ]; then
+    sed -i "s/localhost\/slimblog\/public/$OPENSHIFT_APP_DNS/g" $OPENSHIFT_REPO_DIR/slimblog.sql
+
+    mysql --host=$OPENSHIFT_MYSQL_DB_HOST --user=$OPENSHIFT_MYSQL_DB_USERNAME \
+          --password=$OPENSHIFT_MYSQL_DB_PASSWORD \
+          $OPENSHIFT_APP_NAME < $OPENSHIFT_REPO_DIR/slimblog.sql && \
+    touch $OPENSHIFT_DATA_DIR/database.lock
+fi
